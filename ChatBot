@@ -1,0 +1,139 @@
+package test;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+
+import java.awt.event.KeyListener; //monitors when you press "enter" to input words
+import java.awt.event.KeyEvent;
+import java.awt.Color; //background color
+import java.awt.Font;
+import java.lang.Math;
+
+public class ChatBot extends JFrame implements KeyListener {
+	JPanel p = new JPanel();
+	// dialog is not editable, input is editable
+	JTextArea dialog = new JTextArea(20, 50); // dialog contains the whole conversation
+	JTextArea input = new JTextArea(1, 50); // input your quotes for the conversation
+	JScrollPane scroll = new JScrollPane(dialog, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+			JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+
+	); // Never scroll horizontally, scroll vertical as needed
+
+	// create a 2D array that contains all the phrases you can say and react to
+	String[][] chatBot = {
+			// standard greetings, GROUP 1
+			{ "hi", "hello", "good morning" }, // if one of these words are inputed..
+			{ "hey", "hi", "hello" }, // chatbot will say one of these things at random
+			// question greetings, GROUP 2
+			{ "how are you", "what's up", "how was your day" }, { "good", "doing well", "not great" },
+			// generic responses, GROUP 3
+			{ "yes" }, { "no", "maybe", "i don't know" },
+			// default, triggered if none of the greetings above are inputed, GROUP 4
+			{ "bye", "i have the power of god and anime on my side",
+					"i have a really strong feeling this cat is my mother",
+					"the fridge broke, so i had to eat everything",
+					"if it's a girl, phoebe. if it's a boy, pheebo" }, };
+
+	public static void main(String[] args) {
+		new ChatBot(); // activates constructor method
+	}
+
+	public ChatBot() {
+		super("ChichTech Chat Bot"); // title is ChatBot
+		setSize(600, 400);
+		setResizable(false);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		dialog.setEditable(false);
+		// makes sure key listeners respond to inputs
+		// triggers keyListeners in this class, not some other class
+		input.addKeyListener(this);
+		p.add(scroll);
+		p.add(input);
+		add(p);
+
+		Color color = new Color(155, 0, 0);
+		dialog.setForeground(color);
+		input.setForeground(color);
+		p.setBackground(Color.pink); // set background color of panel
+		setVisible(true); // JFrame objects are not visible by default
+	}
+
+	// since you implemented KeyListener, all the methods for KeyListener will have
+	// to be written
+	public void keyPressed(KeyEvent e) {
+		// only do anything if the key you pressed was "enter"
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) { // VK_ENTER is constant that represents key "enter"
+			input.setEditable(false);
+			// ----grab quote from input----------
+			String quote = input.getText();
+			// clear text in input so you can type more stuff
+			input.setText("");
+			addText("--->You:\t" + quote);
+			// quote = quote.trim();
+			// check for punctuation
+			while (quote.charAt(quote.length() - 1) == '!' || quote.charAt(quote.length() - 1) == '.'
+					|| quote.charAt(quote.length() - 1) == '?') {
+				// take away punctuation
+				quote = quote.substring(0, quote.length() - 1);
+			}
+			// quote = quote.trim();
+			int response = 0;
+			/*
+			 * 0: searching chatbot[][] for matches 1: we didn't find anything in
+			 * chatbot[][], go to default 2: we did find something in chatbot[][]
+			 * 
+			 */
+			// ----check for matches--------------
+			int j = 0; // which group we're checking
+			while (response == 0) {
+				if (inArray(quote.toLowerCase(), chatBot[j * 2]) == true) { // j checks at even indices
+					response = 2; // we did find something
+					// returns random response
+					int r = (int) (Math.random() * chatBot[(j * 2) + 1].length);
+					// r is index in array we want to grab
+					// Math.floor rounds down to nearest integer
+					addText("\n-->Computer\t" + chatBot[(j * 2) + 1][r]);
+				}
+				j++;
+				if (j * 2 == chatBot.length - 1 && response == 0) {
+					response = 1;
+				}
+			}
+			// ----if no matches, go to default---
+			if (response == 1) {
+				int r = (int) Math.floor(Math.random() * chatBot[chatBot.length - 1].length);
+				addText("\n-->Computer\t" + chatBot[chatBot.length - 1][r]);
+
+			}
+			addText("\n");
+		}
+
+	}
+
+	public void keyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) { // VK_ENTER is constant that represents key "enter"
+			input.setEditable(true);
+		}
+	}
+
+	public void keyTyped(KeyEvent e) {
+	}
+
+	public void addText(String str) {
+		dialog.setText(dialog.getText() + (str));
+	}
+
+	public boolean inArray(String input, String[] str) {
+		boolean match = false;
+		for (int i = 0; i < str.length; i++) {
+			if (str[i].equals(input)) {
+				match = true;
+			}
+		}
+		return match;
+	}
+
+}
